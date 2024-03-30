@@ -19,6 +19,7 @@ pub struct InitiaLizeLottery<'info> {
         seeds = [b"reward"],
         bump,
     )]
+    // PDA
     pub token_mint: Account<'info, Mint>,
     #[account(
         init_if_needed,

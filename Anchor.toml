@@ -5,14 +5,23 @@ seeds = true
 skip-lint = false
 
 [programs.localnet]
-solot = "GCDAMzKMKeoX4U8HR4Leop868pygJ5nFpYpnCbwsoiGd"
+solot = "9B8Up2vzn7yrcmkm2dGG8dYX6UBzFe6tue4gbuvgbf3u"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "Localnet"
-wallet = "~/.config/solana/id.json"
+wallet = "/root/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+
+[test]
+startup_wait = 20000
+
+[test.validator]
+url = "https://api.mainnet-beta.solana.com"
+
+[[test.validator.clone]]
+address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s" # token-metadata
