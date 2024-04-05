@@ -1,4 +1,6 @@
-// pub use switchboard_v2::{VrfAccountData, VrfRequestRandomness};
+// pub use switchboard_v2::{VrfAccountData, VrfRequestRandomness, VrfRequestRandomnessParams};
+// pub use anchor_lang::prelude::*;
+// pub use anchor_spl::token::{TokenAccount};
 // use anchor_lang::solana_program::clock;
 
 
@@ -43,7 +45,7 @@
 // }
 
 // impl<'info> RequestRandomness<'info> {
-//     pub fn request_randomness(ctx: &Context(self), params: &VrfRequestRandomnessParams) -> Result<()> {
+//     pub fn request_randomness(ctx: &Context<RequestRandomness>, params: &VrfRequestRandomnessParams) -> Result<()> {
 //         let switchboard_program = ctx.accounts.switchboard_program.to_account_info();
 //         let vrf_request_randomness = VrfRequestRandomness {
 //             authority: ctx.accounts.vrf_state.to_account_info(),
