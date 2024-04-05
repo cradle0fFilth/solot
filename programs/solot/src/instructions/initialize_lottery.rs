@@ -1,5 +1,5 @@
 use crate::constants::{ADMIN_PUBKEY, INIT_SOLOT};
-use crate::state::SolotData;
+use crate::state::*;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{mint_to, MintTo};
 use anchor_spl::{
@@ -13,6 +13,10 @@ pub struct InitiaLizeLottery<'info> {
     pub user: Signer<'info>,
     #[account(init, payer = user, space = 8 + 32)]
     pub solot_data: Account<'info, SolotData>,
+    #[account(init, payer = user, space = 8 + LossLotteryTickets::LEN)]
+    pub loss_lottery_tickets: Account<'info, LossLotteryTickets>,
+    #[account(init, payer = user, space = 8 + WinLotteryTickets::LEN)]
+    pub win_lottery_tickets: Account<'info, WinLotteryTickets>,
 
     #[account(
         mut,
@@ -36,11 +40,8 @@ pub struct InitiaLizeLottery<'info> {
 impl<'info> InitiaLizeLottery<'info> {
     pub fn handler(ctx: Context<InitiaLizeLottery>) -> Result<()> {
         let solot_data = &mut ctx.accounts.solot_data;
-        solot_data.solot_total_count = 0;
         solot_data.total_ticket = 0;
-        solot_data.unredeemed_ticket = 0;
         solot_data.prize_pool = 0;
-        solot_data.total_players = 0;
 
         // mint 10000 solot to the pool
         let seeds = b"reward";
