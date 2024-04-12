@@ -26,8 +26,8 @@ pub mod solot {
     pub fn initialize_lottery(ctx: Context<InitiaLizeLottery>) -> Result<()> {
         initialize_lottery::InitiaLizeLottery::handler(ctx)
     }
-    pub fn mint_ticket(ctx: Context<MintTicket>) -> Result<()> {
-        mint_ticket::MintTicket::handler(ctx)
+    pub fn mint_ticket(ctx: Context<MintTicket>, ticket_type: u8) -> Result<()> {
+        mint_ticket::MintTicket::handler(ctx, ticket_type)
     }
     pub fn claim_price(ctx: Context<Redeem>, ticket_id: u32, amount: u64) -> Result<()> {
         redeem::Redeem::handler(ctx, ticket_id, amount)

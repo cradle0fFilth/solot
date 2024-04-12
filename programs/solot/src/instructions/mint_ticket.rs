@@ -1,8 +1,9 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, system_program::{Transfer, transfer}};
+use solana_program::native_token::LAMPORTS_PER_SOL;
 use crate::state::*;
-
-
-
+use crate::constants::*;
+use crate::error::*;
+use crate::utils::*;
 #[derive(Accounts)]
 pub struct MintTicket<'info> {
     #[account(mut)]
@@ -10,10 +11,10 @@ pub struct MintTicket<'info> {
     #[account(mut)]
     pub solot_data: Account<'info, SolotData>,
     #[account(init,
-    seeds = [&solot_data.total_ticket.to_be_bytes(), player.key().as_ref()],
+    seeds = [(solot_data.total_ticket + 1).to_be_bytes().as_ref(), player.key().as_ref()],
     bump,
     payer = player,
-    space = 8 + 4)]
+    space = std::mem::size_of::<TicketAssociatedAccount>() + 8)]
     pub ticket_associated_account: Account<'info, TicketAssociatedAccount>,
     #[account(mut)]
     pub loss_tickets: Account<'info, LossLotteryTickets>,
@@ -23,15 +24,44 @@ pub struct MintTicket<'info> {
 }
 
 impl<'info> MintTicket<'info> {
-    pub fn handler(ctx: Context<MintTicket>) -> Result<()> {
-        // 处理ticket pirce， 0.1 SOL
-
-        // 创建一个Ticket
+    pub fn handler(ctx: Context<MintTicket>, ticket_type: u8) -> Result<()> {
         let solot_data = &mut ctx.accounts.solot_data;
         let ticket_associated_account = &mut ctx.accounts.ticket_associated_account;
-        ticket_associated_account.ticket_id = solot_data.total_ticket;
+        ticket_associated_account.ticket_id = solot_data.total_ticket + 1;
+        // 处理ticket pirce
+        let ticket_price = match ticket_type {
+            TICKET_TYPE_GATEWAY => {
+                msg!("gateway ticket");
+                (1u64).checked_mul(LAMPORTS_PER_SOL/10)
+            },
+            TICKET_TYPE_TRIUMPH => {
+                msg!("triumph ticket");
+                (6u64).checked_mul(LAMPORTS_PER_SOL/10)
+            },
+            TICKET_TYPE_VOYAGE => {
+                msg!("voyage ticket");
+                (18u64).checked_mul(LAMPORTS_PER_SOL/10)
+            }
+            _ => {
+                msg!("invalid ticket type");
+                return err!(SolotError::InvalidArgument);
+            }
+        };
+        transfer(
+            CpiContext::new(
+                ctx.accounts.system_program.to_account_info(),
+                Transfer {
+                    from: ctx.accounts.player.to_account_info(),
+                    to: ticket_associated_account.to_account_info(),
+                }),
+                ticket_price.unwrap(),
+        )?;
+        // 按比例将sol 转入奖池中， ticket_associated_account账户中剩下的sol暂存，用于swap
+        proportional_transfer(ticket_associated_account, solot_data)?;
+        // todo： swap
 
-        let player_ticket = Ticket::new(solot_data.total_ticket, [1,2,3], b'a');
+        // 创建一个Ticket
+        let player_ticket = Ticket::new(ticket_associated_account.ticket_id, ticket_type,[1,2,3], b'a');
         // 用 switchboard 程序来随机生成 字母& 数字
         // RequestRandomness::request_randomness();
         // generate_ticket_field(&mut mint_ticket.ticket);
@@ -42,7 +72,6 @@ impl<'info> MintTicket<'info> {
         draw_lottery(&mut ctx.accounts.loss_tickets,
             &mut ctx.accounts.win_tickets, &mut solot_data.prize_pool)?;
         solot_data.total_ticket += 1;
-        // todo：操作price_pool
         Ok(())
     }
 }
@@ -50,7 +79,7 @@ impl<'info> MintTicket<'info> {
 
 fn draw_lottery(loss_tickets: &mut Account<LossLotteryTickets>, win_tickets: &mut Account<WinLotteryTickets>, prize_pool: &mut u64) -> Result<()> {
     // todo： switchboard 随机ticket用于开奖号码
-    let draw_ticket = Ticket::new(0, [1,2,3], b'a');
+    let draw_ticket = Ticket::new(0, 0, [1,2,3], b'a');
     // 比对结果, 根据中奖ticket的id 和中奖类型，重新构建win_ticket放入win_tickets数组里， 同时将原来的tiket从loss_tickets里删除
     loss_tickets.loss_lottery_tickets.retain(|element|{
         match element.compare_ticket(&draw_ticket) {

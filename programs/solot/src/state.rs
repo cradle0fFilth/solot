@@ -17,7 +17,7 @@ pub struct LossLotteryTickets {
 
 impl LossLotteryTickets {
     // 增删查 todo
-    pub const LEN: usize = 400 * (4 + 4 + 3 + 1);
+    pub const LEN: usize = 400 * (4 + 4 + 1 + 3 + 1);
     pub fn add_ticket(&mut self, ticket: Ticket){
         self.loss_lottery_tickets.push(ticket);
     }
@@ -27,14 +27,16 @@ impl LossLotteryTickets {
 #[derive(AnchorDeserialize, AnchorSerialize, Clone)]
 pub struct Ticket {
     pub ticket_id: u32, // 4
+    pub ticket_type: u8, // 1
     pub numbers: [u8; 3], // 3
     pub letter: u8, // 1
 }
 
 impl Ticket {
-    pub fn new(ticket_id: u32, numbers: [u8; 3], letter: u8) -> Self {
+    pub fn new(ticket_id: u32, ticket_type: u8, numbers: [u8; 3], letter: u8) -> Self {
         Ticket {
             ticket_id,
+            ticket_type,
             numbers,
             letter,
         }
