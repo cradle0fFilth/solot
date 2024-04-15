@@ -29,7 +29,7 @@ pub mod solot {
     pub fn mint_ticket(ctx: Context<MintTicket>, ticket_type: u8) -> Result<()> {
         mint_ticket::MintTicket::handler(ctx, ticket_type)
     }
-    pub fn claim_price(ctx: Context<Redeem>, ticket_id: u32, amount: u64) -> Result<()> {
-        redeem::Redeem::handler(ctx, ticket_id, amount)
+    pub fn redeem(ctx: Context<Redeem>, ticket_id: u32) -> Result<()> {
+        redeem::Redeem::handler(ctx, ticket_id)
     }
 }

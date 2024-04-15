@@ -1,4 +1,4 @@
-use anchor_lang::{prelude::*, system_program::{Transfer, transfer}};
+use anchor_lang::prelude::*;
 use solana_program::native_token::LAMPORTS_PER_SOL;
 use crate::state::*;
 use crate::constants::*;
@@ -10,16 +10,17 @@ pub struct MintTicket<'info> {
     pub player: Signer<'info>,
     #[account(mut)]
     pub solot_data: Account<'info, SolotData>,
-    #[account(init,
+    #[account(
+    init,
     seeds = [(solot_data.total_ticket + 1).to_be_bytes().as_ref(), player.key().as_ref()],
     bump,
     payer = player,
     space = std::mem::size_of::<TicketAssociatedAccount>() + 8)]
     pub ticket_associated_account: Account<'info, TicketAssociatedAccount>,
     #[account(mut)]
-    pub loss_tickets: Account<'info, LossLotteryTickets>,
+    pub loss_tickets: Box<Account<'info, LossLotteryTickets>>,
     #[account(mut)]
-    pub win_tickets: Account<'info, WinLotteryTickets>,
+    pub win_tickets: Box<Account<'info, WinLotteryTickets>>,
     pub system_program: Program<'info, System>,
 }
 
@@ -30,34 +31,23 @@ impl<'info> MintTicket<'info> {
         ticket_associated_account.ticket_id = solot_data.total_ticket + 1;
         // 处理ticket pirce
         let ticket_price = match ticket_type {
-            TICKET_TYPE_GATEWAY => {
+            TICKET_TYPE_STANDARD => {
                 msg!("gateway ticket");
                 (1u64).checked_mul(LAMPORTS_PER_SOL/10)
             },
-            TICKET_TYPE_TRIUMPH => {
+            TICKET_TYPE_SPECIAL => {
                 msg!("triumph ticket");
-                (6u64).checked_mul(LAMPORTS_PER_SOL/10)
+                (5u64).checked_mul(LAMPORTS_PER_SOL/10)
             },
-            TICKET_TYPE_VOYAGE => {
-                msg!("voyage ticket");
-                (18u64).checked_mul(LAMPORTS_PER_SOL/10)
-            }
             _ => {
                 msg!("invalid ticket type");
                 return err!(SolotError::InvalidArgument);
             }
         };
-        transfer(
-            CpiContext::new(
-                ctx.accounts.system_program.to_account_info(),
-                Transfer {
-                    from: ctx.accounts.player.to_account_info(),
-                    to: ticket_associated_account.to_account_info(),
-                }),
-                ticket_price.unwrap(),
-        )?;
+        solot_transfer_sol(&ctx.accounts.player.to_account_info(), &ticket_associated_account.to_account_info(),
+            ticket_price.unwrap(), &ctx.accounts.system_program.to_account_info())?;
         // 按比例将sol 转入奖池中， ticket_associated_account账户中剩下的sol暂存，用于swap
-        proportional_transfer(ticket_associated_account, solot_data)?;
+        pda_proportional_transfer(ticket_associated_account, solot_data)?;
         // todo： swap
 
         // 创建一个Ticket
@@ -88,9 +78,14 @@ fn draw_lottery(loss_tickets: &mut Account<LossLotteryTickets>, win_tickets: &mu
                 true
             }
             1 => {
-                msg!("win lottery, match 1 number");
-                win_tickets.add_ticket(WinTicket::new(element.ticket_id, RewardType::Reward3, 500, 0));
-                false
+                if element.ticket_type == TICKET_TYPE_SPECIAL {
+                    msg!("loss lottery, special ticket");
+                    true
+                } else {
+                    msg!("win lottery, match 1 number");
+                    win_tickets.add_ticket(WinTicket::new(element.ticket_id, RewardType::Reward3, 500, 0));
+                    false
+                }
             }
             2 => {
                 msg!("win lottery, match 2 number");
@@ -99,7 +94,9 @@ fn draw_lottery(loss_tickets: &mut Account<LossLotteryTickets>, win_tickets: &mu
             }
             3 => {
                 msg!("win lottery, match 3 number");
-                win_tickets.add_ticket(WinTicket::new(element.ticket_id, RewardType::Reward1, 0, (*prize_pool)/5));
+                let sol_reward = (*prize_pool)/5;
+                win_tickets.add_ticket(WinTicket::new(element.ticket_id, RewardType::Reward1, 0, sol_reward));
+                *prize_pool -= sol_reward;    // update price pool
                 false
             }
             _ => {

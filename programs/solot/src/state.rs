@@ -17,7 +17,7 @@ pub struct LossLotteryTickets {
 
 impl LossLotteryTickets {
     // 增删查 todo
-    pub const LEN: usize = 400 * (4 + 4 + 1 + 3 + 1);
+    pub const LEN: usize = 4 + (3000 * (4 + 1 + 3 + 1));
     pub fn add_ticket(&mut self, ticket: Ticket){
         self.loss_lottery_tickets.push(ticket);
     }
@@ -61,7 +61,7 @@ pub struct WinLotteryTickets {
 }
 
 impl WinLotteryTickets {
-    pub const LEN: usize = 400 * (4 + 4 + 2 + 8 + 8);
+    pub const LEN: usize = 4 + (3000 * (4 + 2 + 8 + 8));
     pub fn add_ticket(&mut self, ticket: WinTicket){
         self.win_lottery_tickets.push(ticket);
     }

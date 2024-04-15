@@ -1,7 +1,7 @@
 use crate::constants::{ADMIN_PUBKEY, INIT_SOLOT};
 use crate::state::*;
+use crate::utils::*;
 use anchor_lang::prelude::*;
-use anchor_spl::token::{mint_to, MintTo};
 use anchor_spl::{
     associated_token::AssociatedToken,
     token::{Mint, Token, TokenAccount},
@@ -14,9 +14,9 @@ pub struct InitiaLizeLottery<'info> {
     #[account(init, payer = user, space = 8 + 32)]
     pub solot_data: Account<'info, SolotData>,
     #[account(init, payer = user, space = 8 + LossLotteryTickets::LEN)]
-    pub loss_lottery_tickets: Account<'info, LossLotteryTickets>,
+    pub loss_lottery_tickets: Box<Account<'info, LossLotteryTickets>>,
     #[account(init, payer = user, space = 8 + WinLotteryTickets::LEN)]
-    pub win_lottery_tickets: Account<'info, WinLotteryTickets>,
+    pub win_lottery_tickets: Box<Account<'info, WinLotteryTickets>>,
 
     #[account(
         mut,
@@ -47,20 +47,8 @@ impl<'info> InitiaLizeLottery<'info> {
         let seeds = b"reward";
         let bump = ctx.bumps.token_mint;
         let signer: &[&[&[u8]]] = &[&[seeds, &[bump]]];
-        // CPI Context
-        let cpi_ctx = CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            MintTo {
-                mint: ctx.accounts.token_mint.to_account_info(),
-                to: ctx.accounts.solot_token_pool_account.to_account_info(),
-                authority: ctx.accounts.token_mint.to_account_info(),
-            },
-            signer, // pda signer
-        );
-        let amount = (INIT_SOLOT)
-            .checked_mul(10u64.pow(ctx.accounts.token_mint.decimals as u32))
-            .unwrap();
-        mint_to(cpi_ctx, amount)?;
+        mint_solot_token(&ctx.accounts.token_program.to_account_info(), &ctx.accounts.token_mint,
+            &ctx.accounts.solot_token_pool_account.to_account_info(),  signer, INIT_SOLOT)?;
         Ok(())
     }
 }

@@ -6,6 +6,4 @@ pub enum SolotError {
     InvalidArgument,
     #[msg("Unauthorized")]
     Unauthorized,
-    #[msg("Exceeded winning amount")]
-    ExceededWinningAmount,
 }
