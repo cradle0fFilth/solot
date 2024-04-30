@@ -5,14 +5,17 @@ seeds = true
 skip-lint = false
 
 [programs.localnet]
-solot = "9B8Up2vzn7yrcmkm2dGG8dYX6UBzFe6tue4gbuvgbf3u"
+solot = "7vRG9KT98AqMV2cKcgkQ1WTjMqADBNgXJkkNWSjXtJbe"
+
+[programs.devnet]
+solot = "7vRG9KT98AqMV2cKcgkQ1WTjMqADBNgXJkkNWSjXtJbe"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "Localnet"
-wallet = "/root/.config/solana/id.json"
+wallet = "/Users/star/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
@@ -23,7 +26,7 @@ shutdown_wait = 2000
 upgradeable = false
 
 [test.validator]
-bind_address = "0.0.0.0"
+bind_address = "127.0.0.1"
 url = "https://api.mainnet-beta.solana.com"
 ledger = ".anchor/test-ledger"
 rpc_port = 8899

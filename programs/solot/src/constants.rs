@@ -1,7 +1,7 @@
 use solana_program::{pubkey, pubkey::Pubkey};
 use solana_program::native_token::LAMPORTS_PER_SOL;
 
-pub const ADMIN_PUBKEY: Pubkey = pubkey!("9X5mTq4reQS1Yexs5TeF4novs8a2LQRUyRWvCkH123wa");
+pub const ADMIN_PUBKEY: Pubkey = pubkey!("6T9ajVYoL13jeNp9FCMoU9s4AEBaNFJpHvXptUz1MGag");
 
 pub const INIT_SOLOT: u64 = 10000;
 

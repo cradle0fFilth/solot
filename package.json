@@ -6,9 +6,10 @@
     "dependencies": {
         "@coral-xyz/anchor": "^0.29.0",
         "@metaplex-foundation/js": "^0.20.1",
-        "@metaplex-foundation/mpl-token-metadata": "^3.2.1",
+        "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
         "@metaplex-foundation/umi": "^0.9.1",
-        "@solana/spl-token": "^0.4.3"
+        "@solana/spl-token": "^0.4.3",
+        "@solana/wallet-adapter-react": "^0.15.35"
     },
     "devDependencies": {
         "@types/bn.js": "^5.1.0",
