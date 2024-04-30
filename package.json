@@ -9,7 +9,7 @@
         "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
         "@metaplex-foundation/umi": "^0.9.1",
         "@solana/spl-token": "^0.4.3",
-        "@solana/wallet-adapter-react": "^0.15.35"
+        "@solana/wallet-adapter-react": "^0.15.8"
     },
     "devDependencies": {
         "@types/bn.js": "^5.1.0",

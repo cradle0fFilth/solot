@@ -1,0 +1,410 @@
+{
+  "version": "0.1.0",
+  "name": "solot",
+  "instructions": [
+    {
+      "name": "createMint",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "tokenMint",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "reward"
+              }
+            ]
+          }
+        },
+        {
+          "name": "metadataAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "uri",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "symbol",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "initializeLottery",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "solotData",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "lossLotteryTickets",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "winLotteryTickets",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "tokenMint",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "reward"
+              }
+            ]
+          }
+        },
+        {
+          "name": "solotTokenPoolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "mintTicket",
+      "accounts": [
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "solotData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "ticketAssociatedAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "lossTickets",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "winTickets",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "ticketType",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "redeem",
+      "accounts": [
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "solotData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "winTickets",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "ticketAssociatedAccount",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "type": "u32",
+                "path": "ticket_id"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "player"
+              }
+            ]
+          }
+        },
+        {
+          "name": "adminWallet",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMint",
+          "isMut": true,
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "reward"
+              }
+            ]
+          }
+        },
+        {
+          "name": "solotTokenPoolAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "playerTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "ticketId",
+          "type": "u32"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "SolotData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "totalTicket",
+            "type": "u32"
+          },
+          {
+            "name": "prizePool",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TicketAssociatedAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ticketId",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LossLotteryTickets",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lossLotteryTickets",
+            "type": {
+              "vec": {
+                "defined": "Ticket"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "WinLotteryTickets",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "winLotteryTickets",
+            "type": {
+              "vec": {
+                "defined": "WinTicket"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "Ticket",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ticketId",
+            "type": "u32"
+          },
+          {
+            "name": "ticketType",
+            "type": "u8"
+          },
+          {
+            "name": "numbers",
+            "type": {
+              "array": [
+                "u8",
+                3
+              ]
+            }
+          },
+          {
+            "name": "letter",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WinTicket",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ticketId",
+            "type": "u32"
+          },
+          {
+            "name": "rewardType",
+            "type": {
+              "defined": "RewardType"
+            }
+          },
+          {
+            "name": "solotReward",
+            "type": "u64"
+          },
+          {
+            "name": "solReward",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RewardType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "Reward1"
+          },
+          {
+            "name": "Reward2"
+          },
+          {
+            "name": "Reward3"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidArgument",
+      "msg": "Invalid argument"
+    },
+    {
+      "code": 6001,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    }
+  ]
+}
